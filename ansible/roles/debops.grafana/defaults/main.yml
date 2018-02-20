@@ -25,6 +25,12 @@ grafana__base_packages:
 # List of additional APT packages to install with prometheus.
 grafana__packages: []
                                                                    # ]]]
+# .. envvar:: grafana__upstream [[[
+#
+# Enable upstream repository from grafana
+# http://docs.grafana.org/installation/debian/
+grafana__upstream: True
+                                                                   # ]]]
 # .. envvar:: grafana__release [[[
 #
 # Release channel `stable` or `testing`
