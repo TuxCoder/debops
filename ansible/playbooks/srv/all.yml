@@ -71,3 +71,5 @@
 - include: fail2ban.yml
 
 - include: prosody.yml
+
+- include: grafana.yml
