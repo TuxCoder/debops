@@ -153,6 +153,15 @@ dovecot_sql_user_query: "SELECT home, uid, gid FROM users WHERE userid = '%n' AN
 dovecot_sql_iterate_query: "SELECT userid AS username, domain FROM users"
 
                                                                    # ]]]
+# .. envvar:: dovecot_sql_iterate_query [[[
+#
+dovecot_ldap_uris: '{{ secret_ldap_server_uri }}'
+dovecot_ldap_hosts: none
+dovecot_ldap_bind_dn: ''
+dovecot_ldap_bind_dnpass: ''
+dovecot_ldap_base: ''
+dovecot_ldap_user_attrs: []
+                                                                   # ]]]
 # .. envvar:: dovecot_passwdfile_scheme [[[
 #
 # Scheme method use by dovecot with password authentication
