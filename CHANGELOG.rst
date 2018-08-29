@@ -16,7 +16,13 @@ You can read information about required changes between releases in the
 `debops master`_ - unreleased
 -----------------------------
 
-.. _debops master: https://github.com/debops/debops/compare/v0.7.2...master
+.. _debops master: https://github.com/debops/debops/compare/v0.8.0...master
+
+
+`debops v0.8.0`_ - 2018-08-06
+-----------------------------
+
+.. _debops v0.8.0: https://github.com/debops/debops/compare/v0.7.2...v0.8.0
 
 Added
 ~~~~~
@@ -41,6 +47,9 @@ Added
     Python versions used at the same time. The role is included in the
     ``common.yml`` playbook.
 
+  - Icinga 2 support has been implemented with :ref:`debops.icinga`,
+    :ref:`debops.icinga_db` and :ref:`debops.icinga_web` Ansible roles.
+
 - [debops.users] Selected UNIX accounts can now be configured to linger when
   not logged in via the ``item.linger`` parameter. This allows these accounts
   to maintain long-running services when not logged in via their own private
@@ -54,6 +63,34 @@ Added
   :command:`ifupdown` hook script with :command:`systemd`. During boot, NTP
   daemon will be started once network interfaces are configured and will not
   restart multiple times on each network interface change.
+
+- [debops.resources] The role can now generate custom files using templates,
+  based on a directory structure. See :ref:`resources__ref_templates` for more
+  details.
+
+- [debops.nginx] A ``default`` set of SSL ciphers can be specified using the
+  :envvar:`nginx_default_ssl_ciphers` variable. This disables the
+  ``ssl_ciphers`` option in the :command:`nginx` configuration and forces the
+  server to use the defaults provided by the OS.
+
+- [debops.dhparam] The role will set up a :command:`systemd` timer to
+  regenerate Diffie-Hellman parameters periodically if it's available. The
+  timer will use random delay time, up to 12h, to help with mass DHparam
+  generation in multiple LXC containers/VMs.
+
+- The DebOps installation now depends on the `dnspython`__ Python library. This
+  allows usage of the ``dig`` Ansible lookup plugin in DebOps roles to gather
+  data via DNS SRV records.
+
+  .. __: http://www.dnspython.org/
+
+- The DebOps installation now depends on the `future`__ Python library which
+  provides compatibility between Python 2.7 and Python 3.x environments. It is
+  currently used in the custom Ansible filter plugin provided by DebOps, but
+  its use will be extended to other scripts in the future to make the code more
+  readable.
+
+  .. __: http://python-future.org/
 
 Changed
 ~~~~~~~
@@ -92,6 +129,79 @@ Changed
   based on the type of configured network interfaces (bridges, VLANs, bonding)
   and the kernel modules will be automatically loaded if missing.
 
+- [debops.nodejs] Recent versions of NPM `require NodeJS 6.0.0+`__ and don't
+  work with other releases. Because of that the newest NPM release is not
+  installable on hosts that use NodeJS packages from older OS releases.
+
+  .. __: https://github.com/npm/npm/issues/20425
+
+  The 'debops.nodejs' role will install NPM v5.10.0 version in this case to
+  allow NPM to work correctly - on Debian Jessie, Stretch and Ubuntu Xenial.
+  Otherwise, a NPM from the ``latest`` branch will be installed, as before.
+
+- [debops.nodejs] Instead of NodeJS 6.x release, the role will now install
+  NodeJS 8.x release upstream APT packages by default. This is due to the
+  NodeJS 6.x release `switching to a Maintenance LTS mode`__. NodeJS 8.x will
+  be supported as a LTS release until April 2019.
+
+  .. __: https://github.com/nodejs/Release
+
+- [debops.nodejs] The role will install upstream NodeSource APT packages by
+  default. This is due to `no security support in Debian Stable`__, therefore
+  an upstream packages should be considered more secure. The upstream NodeJS
+  packages include a compatible NPM release, therefore it won't be separately
+  installed from GitHub.
+
+  .. __: https://www.debian.org/releases/stretch/amd64/release-notes/ch-information.en.html#libv8
+
+  The existing installations shouldn't be affected, since the role will select
+  OS/upstream package versions based on existing Ansible local facts.
+
+- [debops.gitlab] Redesign the GitLab version management to read the versions
+  of various components from the GitLab repository files instead of managing
+  them manually in a YAML dictionary. The new :envvar:`gitlab__release`
+  variable is used to specify desired GitLab version to install/manage.
+
+- [debops.gitlab] The :command:`gitaly` service will be installed using the
+  ``git`` UNIX account instead of ``root``. Existing installations might
+  require additional manual cleanup; see the :ref:`upgrade_notes` for details.
+
+- [debops.gitlab] The role now supports installation of GitLab 10.7.
+
+- [debops.gitlab] The usage of :envvar:`gitlab__fqdn` variable is revamped
+  a bit - it's now used as the main variable that defines the GitLab
+  installation FQDN. You might need to update the Ansible inventory if you
+  changed the value of the ``gitlab_domain`` variable used previously for this
+  purpose.
+
+- [debops.lxc] Redesign system-wide LXC configuration to use list of YAML
+  dictionaries merged together instead of custom Jinja templates.
+
+- [debops.lxc] Add :command:`lxc-prepare-ssh` script on the LXC hosts that can
+  be used to install OpenSSH and add the user's SSH authorized keys inside of
+  the LXC containers. This is a new way to prepare the LXC containers for
+  Ansible/DebOps management that doesn't require custom LXC template scripts
+  and can be used with different LXC container types.
+
+- [debops.core] The role will add any new administrator accounts to the list of
+  existing admin accounts instead of replacing them in the Ansible local fact
+  script. This should allow for multiple administrators to easily coexist and
+  run the DebOps playbooks/roles from their own accounts without issues.
+
+- [debops.mariadb_server] [debops.mariadb] The MariaDB/MySQL server and client
+  will now use the ``utf8mb4`` encoding by default instead of the ``utf8``
+  which is an internal MySQL character encoding. This might impact existing
+  databases, see the :ref:`upgrade_notes` for details.
+
+- [debops.unattended_upgrades] On hosts without a domain set, the role enabled
+  all upgrades, not just security updates. This will not happen anymore, the
+  security updates are enabled everywhere by default, you need to enable all
+  upgrades specifically via the :envvar:`unattended_upgrades__release`
+  variable.
+
+- The :command:`debops` script can now parse multiple playbook names specified
+  in any order instead of just looking at the first argument passed to it.
+
 Removed
 ~~~~~~~
 
@@ -121,6 +231,22 @@ Removed
 - [debops.bootstrap] Remove management of Python packages from the role. The
   ``bootstrap.yml`` playbook uses the :ref:`debops.python` role to configure
   Python support on the host.
+
+- [debops.lxc] Remove support for direct LXC container management from the
+  role. This functionality is better suited for other tools like
+  :command:`lxc-*` set of commands, or the Ansible ``lxc_container`` module
+  which should be used in custom playbooks. The 'debops.lxc' role focus should
+  be configuration of LXC support on a host.
+
+- [debops.lxc] Remove custom LXC template support. The LXC containers can be
+  created by the normal templates provided by the ``lxc`` package, and then
+  configured using DebOps roles as usual.
+
+- [debops.postgresql_server] The tasks that modified the default ``template1``
+  database and its schema have been removed to make the PostgreSQL installation
+  more compatible with applications packaged in Debian that rely on the
+  PostgreSQL service. See the relevant commit for more details. Existing
+  installations shouldn't be affected.
 
 
 `debops v0.7.2`_ - 2018-03-28

@@ -11,6 +11,10 @@ perform the upgrades between different stable releases.
 Unreleased
 ----------
 
+
+v0.8.0 (2018-08-06)
+-------------------
+
 UNIX account and group configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -19,6 +23,36 @@ UNIX account and group configuration
   functionality is now done by the :ref:`debops.system_groups` role. The
   variable names and their values changed, see the :ref:`debops.system_groups`
   role documentation for details.
+
+GitLab :command:`gitaly` installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- The :ref:`debops.gitlab` role will now build and install the
+  :command:`gitaly` service using unprivileged ``git`` UNIX account instead of
+  ``root``. To perform the update correctly, you might need to remove directories
+
+  .. code-block:: console
+
+     /usr/local/src/gitlab/gitlab.com/gitaly.git/
+     /var/local/git/gitaly/
+
+  Some files in these directories are owned by ``root`` and that can prevent
+  the correct build of the Go binaries. You might also want to stop the
+  ``gitlab-gitaly.service`` service and start it afterwards.
+
+  The above steps shouldn't impact new GitLab installations.
+
+UTF8 encoding in MariaDB
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- The :ref:`debops.mariadb_server` and :ref:`debops.mariadb` roles will now use
+  the ``utf8mb4`` character encoding by default. This encoding is `the real
+  UTF-8 encoding`__ and not the internal MySQL encoding. This change might
+  impact existing MySQL databases; you can read `an UTF-8 conversion guide`__
+  to check if your database needs to be converted.
+
+  .. __: https://medium.com/@adamhooper/in-mysql-never-use-utf8-use-utf8mb4-11761243e434
+  .. __: https://mathiasbynens.be/notes/mysql-utf8mb4
 
 Inventory variable changes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -87,6 +121,17 @@ Inventory variable changes
 - The ``apt_install__python_packages`` variable has been removed from the
   :ref:`debops.apt_install` role. Use the :ref:`debops.python` Ansible role to
   install Python packages.
+
+- The ``nodejs__upstream_version`` variable has been renamed to
+  :envvar:`nodejs__upstream_release` to better represent the contents, which is
+  not a specific NodeJS version, but a specific major release.
+
+- The ``gitlab_domain`` variable, previously used to set the FQDN of the GitLab
+  installation, now only sets the domain part; it's value is also changed from
+  a YAML list to a string.
+
+  The :envvar:`gitlab__fqdn` variable is now used to set the GitLab FQDN and
+  uses the ``gitlab_domain`` value as the domain part.
 
 
 v0.7.2 (2018-03-28)

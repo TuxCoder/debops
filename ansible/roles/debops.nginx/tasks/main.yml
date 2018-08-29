@@ -123,7 +123,7 @@
     mode: '0775'
   when: (nginx__deploy_state in [ 'present' ])
 
-- name: Allow webadmins to reload nginx using sudo
+- name: Allow webadmins to control nginx system service using sudo
   template:
     src: 'etc/sudoers.d/nginx_webadmins.j2'
     dest: '/etc/sudoers.d/nginx_webadmins'
@@ -233,6 +233,7 @@
   when: (nginx__deploy_state in [ 'present' ])
 
 - include: 'nginx_configs.yml'
+  tags: [ 'role::nginx:servers' ]
   when: (nginx__deploy_state in [ 'present' ])
 
 - include: 'nginx_servers.yml'
