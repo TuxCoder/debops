@@ -372,7 +372,7 @@ prosody__ferm__dependent_rules:
     accept_any: True
     weight: '40'
     by_role: 'prosody'
-    name: 'perosody-xmpp'
+    name: 'prosody-xmpp'
     multiport: True
     rule_state: '{{ "present" if prosody__deploy_state|bool else "absent" }}'
 
@@ -381,7 +381,7 @@ prosody__ferm__dependent_rules:
     accept_any: True
     weight: '40'
     by_role: 'prosody'
-    name: 'perosody-http'
+    name: 'prosody-http'
     multiport: True
     rule_state: '{{ "present" if prosody__deploy_state|bool else "absent" }}'
                                                                    # ]]]
