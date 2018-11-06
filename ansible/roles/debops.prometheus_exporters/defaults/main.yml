@@ -16,7 +16,7 @@
 prometheus_exporters__base_packages:
   "{{ ([ 'prometheus-node-exporter'   ] if 'node' in prometheus_exporters__exporters else [])
     + ([ 'prometheus-mysqld-exporter' ] if 'mysqld' in prometheus_exporters__exporters else [])
-    + ([ 'golang', 'libsystemd-dev', 'build-essential' ] if 'postfix' in prometheus_exporters__exporters else []) }}"
+    + ([ 'libsystemd-dev', 'build-essential' ] if 'postfix' in prometheus_exporters__exporters else []) }}"
                                                                    # ]]]
                                                                    # ]]]
 # .. envvar:: prometheus_exporters__packages [[[
