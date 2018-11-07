@@ -10,7 +10,7 @@ Can I use DebOps roles as standalone?
 
 Yes! All [#f1]_ of the Ansible roles included in DebOps are designed to be
 self-contained - each role usually manages a specific service or functionality,
-and doesn't touch anything that is not supposed to directly. Configuration
+and doesn't touch anything that it is not supposed to directly. Configuration
 dependent on other roles (for example, firewall configuration for a network
 service) is passed along to relevant roles using role dependent variables, on
 the Ansible playbook level.
@@ -20,7 +20,7 @@ different dependent roles (for example replacing the :ref:`debops.ferm` role
 with another firewall management Ansible role).
 
 Some dependent roles like :ref:`debops.secret` and
-:ref:`debops.ansible_plugins` are "hard dependencies" and without them role
+:ref:`debops.ansible_plugins` are "hard dependencies" and without them roles
 will not work as expected - check the example playbooks provided in the
 documentation to see how the roles are used.
 
@@ -44,7 +44,7 @@ in the Ansible inventory.
 .. __: https://docs.ansible.com/ansible/devel/vault.html
 
 The :file:`secret/` directory is used for much more - Certificate Authority
-management via :ref:`debops.pki`, secure data passing between hosts, for
+management via :ref:`debops.pki`, passing secure data between hosts, for
 example by :ref:`debops.tinc`, among other things. You can read more about it
 in the :ref:`debops.secret` role documentation.
 
@@ -71,6 +71,22 @@ use them.
 The long term plan is to remove the need for the custom lookup plugins - the
 roles that use them should be updated so that any changes that require custom
 templates or files can be done through normal Ansible functionality.
+
+
+Roles fail when running ``debops`` with the ``--skip-tags`` flag.
+-----------------------------------------------------------------
+
+This is due to the way tags are structured. As a general rule, if you use
+``--skip-tags``, you should use tags in the form ``skip::<role_name>`` as
+opposed to ``role::<role_name>``.
+
+If the role you want to skip does not have a matching ``skip::<role_name>``
+tag, please open an issue or, even better, create a pull request!
+
+See `Issue #444`__ for more information and an example of such a pull
+request.
+
+.. __: https://github.com/debops/debops/issues/444
 
 
 .. rubric:: Footnotes

@@ -6,6 +6,8 @@
 
 # .. contents:: Sections
 #    :local:
+#
+# .. include:: ../../../includes/global.rst
 
 
 # Custom APT package repositories [[[
@@ -15,7 +17,7 @@
 #
 # List of APT package names which are scanned to check available PHP versions.
 # The first found package wins.
-php__version_preference: [ 'php7.0', 'php5' ]
+php__version_preference: [ 'php7.2', 'php7.1', 'php7.0', 'php5' ]
 
                                                                    # ]]]
 # .. envvar:: php__sury [[[
@@ -88,7 +90,7 @@ php__base_packages:
   - 'curl'
   - 'gd'
   - '{{ "mcrypt"
-        if (php__version | version_compare("7.2","<"))
+        if (php__version is version_compare("7.2","<"))
         else [] }}'
 
                                                                    # ]]]
@@ -163,6 +165,7 @@ php__release_included_map:
   trusty:  '{{ php__php5_included_packages }}'
   xenial:  '{{ php__php_included_packages }}'
   zesty:   '{{ php__php_included_packages }}'
+  bionic:  '{{ php__php_included_packages }}'
 
                                                                    # ]]]
 # .. envvar:: php__php5_included_packages [[[
@@ -318,7 +321,9 @@ php__default_configuration:
           error_reporting =        {{ (php__production|bool)|ternary('E_ALL & ~E_DEPRECATED & ~E_STRICT', 'E_ALL') }}
           display_errors =         {{ (php__production|bool)|ternary('Off', 'On') }}
           display_startup_errors = {{ (php__production|bool)|ternary('Off', 'On') }}
+          {% if php__version is version_compare("7.2","<") %}
           track_errors =           {{ (php__production|bool)|ternary('Off', 'On') }}
+          {% endif %}
           post_max_size =          {{  php__ini_post_max_size }}
           default_charset =        {{  php__ini_default_charset }}
           file_uploads =           {{ (php__ini_file_uploads|bool)|ternary('On', 'Off') }}
@@ -701,6 +706,7 @@ php__logrotate__dependent_config:
       - '/var/log/php{{ php__version }}-fpm.log'
       - '/var/log/php{{ php__version }}-fpm/*.log'
     options: |
+      create 0660 root adm
       rotate 12
       missingok
       weekly
@@ -708,7 +714,7 @@ php__logrotate__dependent_config:
       compress
       delaycompress
     postrotate: |
-      {% if php__long_version | version_compare("5.5","<") %}
+      {% if php__long_version is version_compare("5.5","<") %}
       invoke-rc.d php{{ php__version }}-fpm reopen-logs > /dev/null
       {% else %}
       {{ php__logrotate_lib_base }}/php{{ php__version }}-fpm-reopenlogs

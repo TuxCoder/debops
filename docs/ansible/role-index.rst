@@ -24,6 +24,7 @@ etc.
 - :ref:`debops.dokuwiki`
 - :ref:`debops.etherpad`
 - :ref:`debops.gitlab`
+- :ref:`debops.icinga`
 - :ref:`debops.kibana`
 - :ref:`debops.librenms`
 - :ref:`debops.mailman`
@@ -54,6 +55,7 @@ methods.
 - :ref:`debops.java`
 - :ref:`debops.nodejs`
 - :ref:`debops.php`
+- :ref:`debops.python`
 - :ref:`debops.ruby`
 - ``debops.hwraid``
 - ``debops.rails_deploy``
@@ -66,11 +68,13 @@ Application services
 These roles manage applications that provide services to other applications and
 are not accessed directly by end users.
 
+- :ref:`debops.ansible`
 - :ref:`debops.apt_cacher_ng`
 - :ref:`debops.debops` - install DebOps on other hosts
 - :ref:`debops.debops_api`
 - :ref:`debops.gitlab_runner`
 - :ref:`debops.fcgiwrap`
+- :ref:`debops.freeradius`
 - :ref:`debops.gunicorn`
 - :ref:`debops.memcached`
 - :ref:`debops.mosquitto`
@@ -100,7 +104,8 @@ Databases
 - :ref:`debops.mariadb_server`
 - :ref:`debops.postgresql`
 - :ref:`debops.postgresql_server`
-- :ref:`debops.redis`
+- :ref:`debops.redis_server`
+- :ref:`debops.redis_sentinel`
 - :ref:`debops.slapd`
 - ``debops.phpmyadmin``
 
@@ -148,9 +153,9 @@ Host provisioning
 Kernel
 ------
 
+- :ref:`debops.kmod`
 - :ref:`debops.sysctl`
 - :ref:`debops.sysfs`
-- ``debops-contrib.kernel_module``
 
 
 Logging
@@ -181,6 +186,10 @@ Mail services
 Monitoring
 ----------
 
+- :ref:`debops.dhcp_probe`
+- :ref:`debops.icinga`
+- :ref:`debops.icinga_db`
+- :ref:`debops.icinga_web`
 - :ref:`debops.librenms`
 - :ref:`debops.monit`
 - :ref:`debops.proc_hidepid`
@@ -192,9 +201,12 @@ Networking
 ----------
 
 - :ref:`debops.avahi`
+- :ref:`debops.dhcp_probe`
 - :ref:`debops.dhcpd`
 - :ref:`debops.dnsmasq`
+- :ref:`debops.freeradius`
 - :ref:`debops.ifupdown`
+- :ref:`debops.netbase`
 - :ref:`debops.radvd`
 - :ref:`debops.stunnel`
 - :ref:`debops.tinc`
@@ -212,8 +224,10 @@ packages.
 - :ref:`debops.apt_cacher_ng`
 - :ref:`debops.apt_listchanges`
 - :ref:`debops.apt_install`
+- :ref:`debops.apt_mark`
 - :ref:`debops.apt_preferences`
 - :ref:`debops.apt_proxy`
+- :ref:`debops.debops_legacy`
 - :ref:`debops.unattended_upgrades`
 - ``debops.reprepro``
 
@@ -225,8 +239,11 @@ Security
 - :ref:`debops.authorized_keys`
 - :ref:`debops.fail2ban`
 - :ref:`debops.ferm`
+- :ref:`debops.freeradius`
 - :ref:`debops.proc_hidepid`
 - :ref:`debops.sshd`
+- :ref:`debops.sudo`
+- :ref:`debops.system_groups`
 - :ref:`debops.tcpwrappers`
 - ``debops-contrib.apparmor``
 - ``debops-contrib.firejail``
@@ -237,12 +254,15 @@ System configuration
 
 - :ref:`debops.atd`
 - :ref:`debops.cron`
+- :ref:`debops.debops_legacy`
 - :ref:`debops.environment`
 - :ref:`debops.etc_services`
+- :ref:`debops.etckeeper`
 - :ref:`debops.ferm`
 - :ref:`debops.locales`
 - :ref:`debops.logrotate`
 - :ref:`debops.machine`
+- :ref:`debops.netbase`
 - :ref:`debops.nsswitch`
 - :ref:`debops.ntp`
 - :ref:`debops.resources`
@@ -251,11 +271,11 @@ System configuration
 - :ref:`debops.sysctl`
 - :ref:`debops.sysfs`
 - :ref:`debops.sysnews`
+- :ref:`debops.system_groups`
 - :ref:`debops.users`
 - ``debops.console``
 - ``debops.gitusers``
 - ``debops.sftpusers``
-- ``debops-contrib.etckeeper``
 
 
 Web services

@@ -85,7 +85,7 @@ name prefix:
 
 ``mapping``
   The interface configuration is selected dynamically by a specified script.
-  See :manpage:`interfaces(5)` for more details.
+  See :man:`interfaces(5)` for more details.
 
 Each network interface can have multiple parameters. Some parameters are
 specific to a particular interface type.
@@ -212,13 +212,13 @@ IPv4 and IPv6 configuration parameters
 
 ``inet``
   Optional. IPv4 configuration method used by a given interface. There are many
-  configuration methods described in the :manpage:`interfaces(5)` manual page, most
+  configuration methods described in the :man:`interfaces(5)` manual page, most
   commonly used are: ``manual``, ``dhcp``, ``static``. If you set this
   parameter to ``False``, the IPv4 configuration will be disabled.
 
 ``inet6``
   Optional. IPv6 configuration method used by a given interface. There are many
-  configuration methods described in the :manpage:`interfaces(5)` manual page, most
+  configuration methods described in the :man:`interfaces(5)` manual page, most
   commonly used are: ``auto``, ``manual``, ``dhcp``, ``static``, ``v4tunnel``,
   ``6to4``. If you set this parameter to ``False``, the IPv6 configuration will
   be disabled.
@@ -258,8 +258,8 @@ Bonding parameters
 ``slaves``
   Optional. String or YAML list of network interfaces to bond together.
 
-``bond-*``
-  Optional. If an interface is a bonding, any parameters that have ``bond-``
+``bond_*``
+  Optional. If an interface is a bonding, any parameters that have ``bond_``
   prefix will be added to that interface configuration. See the documentation
   included in the ``ifenslave`` package for possible configuration options.
 
@@ -269,7 +269,7 @@ Bridge parameters
 ``bridge_*``
   Optional. If an interface is a bridge, any parameters that have ``bridge_``
   prefix will be added to that interface configuration. See the
-  :manpage:`bridge-utils-interfaces(5)` manual for more details about possible bridge
+  :man:`bridge-utils-interfaces(5)` manual for more details about possible bridge
   configuration options.
 
 VLAN parameters
@@ -292,7 +292,20 @@ Mapping parameters
 
 ``script``
   Absolute path to a script which will be used to select a specific interface
-  configuration for a mapping dynamically. See :manpage:`interfaces(5)` manual for
+  configuration for a mapping dynamically. See :man:`interfaces(5)` manual for
+  more details.
+
+DHCP parameters
+~~~~~~~~~~~~~~~
+
+``dhcp_ignore``
+  Optional. String or list of variable names used by the
+  :man:`dhclient-script(8)` script to configure the interface. The specified
+  variables representing DHCP options will be unset by the configuration
+  script; this can be used to selectively ignore DHCP options on a given
+  network interface.
+
+  See :ref:`ifupdown__ref_custom_hooks_filter_dhcp_options` documentation for
   more details.
 
 Custom interface options
@@ -354,8 +367,26 @@ Firewall parameters
 
 ``forward``
   Optional, boolean. If absent and an interface is a bridge, or present and
-  ``True``, the role will generate configuration for the :ref:`debops.ferm` to
-  enable packet forwarding for a given interface.
+  ``True``, the role will generate configuration for the :ref:`debops.ferm` and
+  the :ref:`debops.sysctl` roles to enable packet forwarding for a given
+  interface.
+
+``forward_ipv6``
+  Optional, boolean. Only makes sense with the ``forward`` parameter present.
+  By default the role will enable forwarding on IPv6 networks, you can use this
+  parameter to disable it by setting it to ``False``.
+
+``forward_ipv4``
+  Optional, boolean. Only makes sense with the ``forward`` parameter present.
+  By default the role will enable forwarding on IPv4 networks, you can use this
+  parameter to disable it by setting it to ``False``.
+
+``accept_ra``
+  Optional, by default not defined. If ``0``, the SLAAC Router Advertisements
+  on IPv6 networks will be ignored by this interface. If ``1``, this interface
+  will accept the SLAAC Router Advertisements when forwarding is disabled,
+  ignore when forwarding is enabled. If ``2``, SLAAC Router Advertisements
+  received on this interface will be accepted even when forwarding is enabled.
 
 ``forward_interface_ferm_rule_enabled``
   Optional, boolean. Should a Firewall rule be configured which matches new
@@ -572,13 +603,13 @@ with MTU and other parameters:
      'bond0':
        auto: True
        inet: 'manual'
-       bond-slaves: [ 'eth0', 'eth1' ]
-       bond-mode: '4'
-       bond-miimon: '100'
-       bond-downdelay: '200'
-       bond-updelay: '200'
-       bond-lacp-rate: '1'
-       bond-xmit-hash-policy: 'layer2+3'
+       bond_slaves: [ 'eth0', 'eth1' ]
+       bond_mode: '4'
+       bond_miimon: '100'
+       bond_downdelay: '200'
+       bond_updelay: '200'
+       bond_lacp_rate: '1'
+       bond_xmit_hash_policy: 'layer2+3'
        options: |
          up ifconfig lacptrunk0 0.0.0.0 up
          post-up ifconfig eth0 mtu 9000 && ifconfig eth1 mtu 9000 && ifconfig bond0 mtu 9000

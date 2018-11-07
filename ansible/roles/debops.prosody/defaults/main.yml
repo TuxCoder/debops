@@ -6,6 +6,9 @@
 
 # .. contents:: Sections
 #    :local:
+#
+# .. include:: ../../../includes/global.rst
+
 
 # Packages and installation [[[
 # -----------------------------
@@ -16,6 +19,7 @@
 prosody__base_packages:
   - 'prosody'
   - 'lua-zlib'
+  - 'lua-sec'
   - 'prosody-modules'  # for ldap auth
   - '{{ "lua-event" if prosody__use_libevent|bool else [] }}'
 

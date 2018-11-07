@@ -78,7 +78,7 @@ Each item of those lists is a dictionary with the following documented keys:
   * ``veracrypt``
 
   Defaults to ``luks``. There is no global variable to change this default.
-  Refer to :manpage:`cryptsetup(8)` for more details.
+  Refer to :man:`cryptsetup(8)` for more details.
 
 .. _cryptsetup__devices_offset:
 
@@ -92,7 +92,7 @@ Each item of those lists is a dictionary with the following documented keys:
 
 ``crypttab_options``
   Optional, list of strings. Each string represents an option to configure for
-  the device in :file:`/etc/crypttab`. See :manpage:`crypttab(5)` for details.
+  the device in :file:`/etc/crypttab`. See :man:`crypttab(5)` for details.
   Default to :envvar:`cryptsetup__crypttab_options`.
 
   Note that :command:`cryptsetup` options need to be specified using there corresponding
@@ -172,7 +172,7 @@ Each item of those lists is a dictionary with the following documented keys:
   this role always uses internally), it does not terminate input when reading a
   newline. When reading from STDIN or from a terminal, it does however
   terminate on the first newline and uses the passphrase with the trailing
-  newline stripped.  Refer to :manpage:`cryptsetup(8)` under :regexp:`Notes on
+  newline stripped.  Refer to :man:`cryptsetup(8)` under :regexp:`Notes on
   passphrase processing for (plain mode|LUKS)`.
 
   Defaults to :envvar:`cryptsetup__keyfile_gen_command`.
@@ -213,7 +213,7 @@ Each item of those lists is a dictionary with the following documented keys:
 ``swap_priority``
   Optional, integer. Default swap device priority, from ``-1`` to ``32767``.
   Higher numbers indicate higher priority.
-  Refer to :manpage:`swapon(8)` for details.
+  Refer to :man:`swapon(8)` for details.
   Defaults to :envvar:`cryptsetup__swap_priority`.
 
 .. _cryptsetup__devices_swap_options:
@@ -260,7 +260,7 @@ Each item of those lists is a dictionary with the following documented keys:
 
 ``mount_options``
   Optional, list of strings. Mount options associated with the filesystem.
-  For more details see :manpage:`mount(8)`.
+  For more details see :man:`mount(8)`.
   Defaults to :envvar:`cryptsetup__mount_options`.
 
 .. _cryptsetup__devices_state:
@@ -566,13 +566,13 @@ when using such an example.
      - name: 'vault_ciphertext1'
        ciphertext_block_device: '/dev/mapper/vault_ciphertext0'
        manage_filesystem: False
-       cipher: 'twofish-cbc-plain'
-       key_size: 256
+       cipher: 'twofish-xts-plain64'
+       key_size: 512
 
      - name: 'vault'
        ciphertext_block_device: '/dev/mapper/vault_ciphertext1'
-       cipher: 'serpent-cbc-plain'
-       key_size: 256
+       cipher: 'serpent-xts-plain64'
+       key_size: 512
 
 This will encrypt :file:`/tmp/ciphertext_vault_file.raw` using the default cipher
 (:envvar:`cryptsetup__cipher` which defaults to AES) and make the "clear text" of
@@ -588,6 +588,15 @@ This is surely a more extreme example but it has been tested in a lab
 environment and the setup seems to work just fine. Also automatic
 mapping/mounting of all layers works seamlessly on system boot if configured to
 do so (which is the default).
+
+You can even boot from such a chained number of devices but you might need to
+manually list the ``vault_ciphertext`` device(s) in
+:file:`/etc/initramfs-tools/conf.d/cryptroot`. At least on Debian Stretch this
+is required.
+:command:`mkinitramfs -k -o /tmp/initramfs_tmp` and :command:`cat
+/var/tmp/mkinitramfs_$XXXX/conf/conf.d/cryptroot` can help you to see if the
+full chain is known to the initramfs. If so, regenerate the actual initramfs
+and reboot to test it.
 
 The list of cyphers and key sizes can be checked with :command:`cryptsetup benchmark`.
 You can check that the ciphers are chained as expected using :command:`cryptsetup status

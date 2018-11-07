@@ -59,6 +59,28 @@
     group: 'root'
     mode: '0644'
 
+- name: Make sure that Ansible local fact directory exists
+  file:
+    path: '/etc/ansible/facts.d'
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+
+- name: Save PostgreSQL local facts
+  template:
+    src: 'etc/ansible/facts.d/postgresql.fact.j2'
+    dest: '/etc/ansible/facts.d/postgresql.fact'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  register: postgresql__register_local_facts
+
+- name: Re-read local facts if they have been modified
+  action: setup
+  when: postgresql__register_local_facts|d() and
+        postgresql__register_local_facts is changed
+
 - name: Create PostgreSQL roles
   postgresql_user:
     name: '{{ item.name | d(item.role) }}'
@@ -203,8 +225,26 @@
 - name: Populate ~/.pgpass file
   lineinfile:
     dest: '{{ "~" + item.owner }}/.pgpass'
-    regexp: '^{{ (item.server | d(postgresql__server if postgresql__server else "localhost")) | replace(".","\.") }}:{{ item.port | d(postgresql__port) }}:{{ item.database | d("*") }}:{{ item.role | d("*") }}:'
-    line: '{{ item.server | d(postgresql__server if postgresql__server else "localhost") }}:{{ item.port | d(postgresql__port) }}:{{ item.database | d("*") }}:{{ item.role | d(item.owner) }}:{{ item.password | d(lookup("password", secret + "/postgresql/" + (item.server | d(postgresql__server if postgresql__server else ansible_fqdn)) + "/" + (item.port | d(postgresql__port)) + "/credentials/" + item.name | d(item.role | d(item.owner)) + "/password length=" + postgresql__password_length)) }}'
+    regexp: '{{ "^" + ([
+                        ((item.server  | d(postgresql__server if postgresql__server else "localhost")) | replace(".","\.")),
+                        (item.port     | d(postgresql__port)),
+                        (item.database | d("\*")),
+                        (item.name     | d(item.role | d(item.owner | d("\*"))))
+                       ] | join(":")
+                      ) + ":" }}'
+    line: '{{ [
+               (item.server   | d(postgresql__server if postgresql__server else "localhost")),
+               (item.port     | d(postgresql__port)),
+               (item.database | d("*")),
+               (item.role     | d(item.owner)),
+               (item.password | d(lookup("password",
+                                  secret + "/postgresql/"
+                                  + (item.server | d(postgresql__password_hostname)) + "/"
+                                  + (item.port | d(postgresql__port)) + "/credentials/"
+                                  + item.name | d(item.role | d(item.owner))
+                                  + "/password length=" + postgresql__password_length)
+                                 ) | regex_replace("\\", "\\\\" ) | regex_replace(":", "\:" ))
+               ] | join(":") }}'
     state: 'present'
     create: True
     owner: '{{ item.owner }}'
@@ -216,25 +256,3 @@
     - '{{ postgresql__dependent_pgpass }}'
   when: item.owner|d() and item.owner
   no_log: True
-
-- name: Make sure that Ansible local fact directory exists
-  file:
-    path: '/etc/ansible/facts.d'
-    state: 'directory'
-    owner: 'root'
-    group: 'root'
-    mode: '0755'
-
-- name: Save PostgreSQL local facts
-  template:
-    src: 'etc/ansible/facts.d/postgresql.fact.j2'
-    dest: '/etc/ansible/facts.d/postgresql.fact'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-  register: postgresql__register_local_facts
-
-- name: Re-read local facts if they have been modified
-  action: setup
-  when: postgresql__register_local_facts|d() and
-        postgresql__register_local_facts.changed

@@ -119,6 +119,12 @@ General account parameters
 ``non_unique``
   Optional, boolean. If ``True``, allows setting the UID to a non-unique value.
 
+``linger``
+  Optional, boolean. If ``True``, the UNIX account will be allowed to linger
+  when not logged in and manage private services via it's own
+  :command:`systemd` user instance. If ``False``, the linger option will be
+  disabled.
+
 Parameters related to account state
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -166,6 +172,37 @@ Parameters related to home directories
 ``skeleton``
   Optional. Specify path to the directory, contents of which will be copied to
   the newly created home directory.
+
+``home_acl``
+  Optional. Configure filesystem ACL entries of the home directory of a given
+  UNIX user account. This parameter is a list of YAML dictionaries, each
+  element uses a specific set of parameters derived from the ``acl`` Ansible
+  module, see its documentation for details, as well as the :man:`acl(5)`,
+  :man:`setfacl(1)` and :man:`getfacl` manual pages. Some useful parameters:
+
+  ``default``
+    Optional, boolean. If ``True``, set a given ACL entry as the default for
+    new files and directories inside a given directory. Only works with
+    directories.
+
+  ``entity``
+    Name of the UNIX user account or group that a given ACL entry applies to.
+
+  ``etype``
+    Specify the ACL entry type to configure. Valid choices: ``user``,
+    ``group``, ``mask``, ``other``.
+
+  ``permissions``
+    Specify the permission to apply for a given ACL entry. This parameter
+    cannot be specified when the state of an ACL entry is set to ``absent``.
+
+  ``recursive``
+    Apply a given ACL entry recursively to all entities in a given path.
+
+  ``state``
+    Optional. If not specified or ``present``, the ACL entry will be created.
+    If ``absent``, the ACL entry will be removed. The ``query`` state doesn't
+    make sense in this context and shouldn't be used.
 
 Parameters related to the account's private SSH key
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

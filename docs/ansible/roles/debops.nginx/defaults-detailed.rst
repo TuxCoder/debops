@@ -92,6 +92,19 @@ Common webserver options
   See also ``owner`` parameter.
   The directive will be omitted if set to ``False``.
 
+``public_dir_name``
+  Optional, string.
+  Folder name witch will be concatenated to :file:`/srv/www/<``name[0]>/`
+  Defaults to :file:`public`.
+
+``root_suffix``
+  Optional, string.
+  Used in scenario when the site root is in another subfoder.
+  Example. The files are stored in ``/srv/www/<name[0]>/public``,
+  but in nginx the root needs to be ``/srv/www/<name[0]>/public/current/pub``
+  Defaults to empty string.
+
+
 ``try_files``
   Optional, string. Defaults to ``nginx_default_try_files``.
   Checks for the existence of files in order, and returns the
@@ -727,7 +740,22 @@ Type: proxy
 
 Available when ``item.type`` is set to ``proxy`` for a server.
 
-FIXME: Documentation missing.
+``proxy_pass``
+  Required, string. Set the upstream url for this proxy configuration. This can
+  be omitted if either a ``location`` or a ``location_list`` is defined.
+
+``proxy_location``
+  Optional, string. Defaults to ``/``.
+  Set the location for the proxy, which is used in case not other ``location`` or
+  ``location_list`` are defined.
+
+``proxy_headers``
+  Optional, string. Add custom headers to this proxy configuration using a YAML
+  text block (semicolon at the end of each line is required).
+
+``proxy_options``
+  Optional, string. Add custom options to this proxy configuration using a YAML
+  text block (semicolon at the end of each line is required).
 
 Type: rails
 ~~~~~~~~~~~

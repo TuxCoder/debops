@@ -103,7 +103,7 @@
     dest: '{{ librenms__install_path + "/config.php" }}'
     owner: '{{ librenms__user }}'
     group: '{{ librenms__group }}'
-    mode: '0600'
+    mode: '{{ librenms__config_mode }}'
   tags: [ 'role::librenms:config', 'role::librenms:database' ]
 
 - name: Download composer.phar if requested
@@ -138,7 +138,7 @@
   args:
     chdir: '{{ librenms__install_path }}'
   become_user: '{{ librenms__user }}'
-  when: (librenms__register_database_status|d() and librenms__register_database_status.changed)
+  when: (librenms__register_database_status|d() and librenms__register_database_status is changed)
   tags: [ 'role::librenms:database' ]
 
 - name: Get list of existing users from LibreNMS database

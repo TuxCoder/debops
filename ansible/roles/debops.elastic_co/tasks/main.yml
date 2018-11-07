@@ -11,9 +11,12 @@
 
 - name: Configure Elastic APT repository
   apt_repository:
-    repo: '{{ elastic_co__repository }}'
-    state: 'present'
     update_cache: True
+    repo: '{{ item.repo }}'
+    filename: '{{ item.filename | d(omit) }}'
+    state: 'present'
+  with_items: '{{ elastic_co__repositories }}'
+  when: item.enabled|d(True)
 
 - name: Install Elastic packages
   package:
@@ -45,5 +48,5 @@
 
 - name: Update Ansible facts if they were modified
   action: setup
-  when: (elastic_co__register_facts|changed or
-         elastic_co__register_install|changed)
+  when: (elastic_co__register_facts is changed or
+         elastic_co__register_install is changed)

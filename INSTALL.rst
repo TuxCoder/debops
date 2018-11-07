@@ -47,8 +47,9 @@ Debian
 
   On older Debian releases, you should consider installing Ansible by creating
   a ``.deb`` package from the official :command:`git` repository sources. You
-  can find a :command:`bootstrap-ansible.sh` script which can do this for you
-  automatically in the :ref:`debops.debops` Ansible role.
+  can find a :command:`bootstrap-ansible` script which can do this for you
+  automatically in the :ref:`debops.ansible` Ansible role :file:`files/`
+  subdirectory.
 
 macOS
   The ``debops`` Python package which contains scripts and modules used by the
@@ -91,6 +92,15 @@ can usually be installed using a system package manager.
 
 .. __: https://www.gnupg.org/
 
+`python-dnspython`__
+  This is a Python library that provides various functions related to DNS
+  queries. Some of the DebOps roles rely on DNS records to get information
+  about the environment, like addresses of centralized services provided via
+  DNS SRV records. In Ansible, this library is required by the ``dig`` lookup
+  plugin.
+
+.. __: http://www.dnspython.org/
+
 `python-ldap`__
   This is a Python library which can be used to interface with the LDAP
   servers, Ansible `ldap_attr`__ and `ldap_entry`__ modules use it. You will
@@ -101,6 +111,13 @@ can usually be installed using a system package manager.
 .. __: https://www.python-ldap.org/en/latest/
 .. __: https://docs.ansible.com/ansible/latest/ldap_attr_module.html
 .. __: https://docs.ansible.com/ansible/latest/ldap_entry_module.html
+
+`python-future`__
+  This module provides a compatibility layer between Python 2.7 and Python 3.x
+  versions. It allows creation of code that can be run in both old and new
+  Python environments without changes.
+
+.. __: http://python-future.org/
 
 `python-netaddr`__
   This is a Python library which can be used to manipulate IP addresses in
@@ -152,7 +169,7 @@ DebOps monorepo
 
 If you installed DebOps using a Python package equal or newer than ``0.7.0``,
 the installation should include a set of DebOps playbooks and roles located in
-the ``debops`` Python pacakge directory. The scripts should automatically find
+the ``debops`` Python package directory. The scripts should automatically find
 them and use them as necessary.
 
 If you installed an older DebOps release, or you want to use the latest changes
@@ -188,10 +205,20 @@ work in Ubuntu.
 
 .. __: https://virtualenv.pypa.io/en/stable/
 
+First install python virtual-env packages and other system dependencies
+required for building:
+
 .. code-block:: console
 
    sudo apt-get install python-virtualenv virtualenv build-essential \
-                        python-dev libffi-dev libssl-dev
+                        python-dev libffi-dev libssl-dev libsasl2-dev \
+                        libldap2-dev
+
+
+Next we activate the DebOps virtual environment and prepare it for use:
+
+.. code-block:: console
+
    virtualenv debops-venv
    cd debops-venv
    source bin/activate
@@ -210,3 +237,17 @@ commands available outside of the the Python virtual environment:
    ln -s debops-venv/bin/debops-init      /usr/local/bin/debops-init
    ln -s debops-venv/bin/debops-update    /usr/local/bin/debops-update
    ln -s debops-venv/bin/debops-defaults  /usr/local/bin/debops-defaults
+
+If your Ansible/DebOps-Controller machine has SElinux enabled, delegating tasks
+to ``localhost`` is problematic. `A workaround for this issue`__ is to add
+a definition for ``localhost`` to your inventory, outside of the
+``[debops_all_hosts]`` inventory group:
+
+.. __: https://dmsimard.com/2016/01/08/selinux-python-virtualenv-chroot-and-ansible-dont-play-nice/
+
+.. code-block:: none
+
+   localhost ansible_python_interpreter=/usr/bin/python
+
+This makes Ansible use the SElinux libraries from the python-environment
+*outside* of the virtualenv.
