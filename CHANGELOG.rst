@@ -146,6 +146,14 @@ Changed
   :file:`pages/front/default.php` to :file:`pages/front/tiles.php` which allows
   for better customization.
 
+- The order of the roles in the common playbook has been changed; the
+  :ref:`debops.users` role will be applied before the :ref:`debops.resources`
+  role to allow for resources owned by UNIX accounts/groups other than
+  ``root``.
+
+- [debops.gunicorn] The role depends on :ref:`debops.python` now to install the
+  required packages. Please update your custom playbooks accordingly.
+
 Fixed
 ~~~~~
 
