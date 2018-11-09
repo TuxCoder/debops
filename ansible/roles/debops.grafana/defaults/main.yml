@@ -56,7 +56,19 @@ grafana__apt__keys:
 #
 # http://docs.grafana.org/installation/configuration/
 
+# .. envvar:: grafana__deploy_state [[[
+#
+# Set to `absent` to disable and uninstall this role
+grafana__deploy_state: "present"
+                                                                   # ]]]
+# .. envvar:: grafana__aononymous [[[
+#
+# Enables anonymous auth on the grafana server
+grafana__anonymous: False
+                                                                   # ]]]
+
 grafana__port: 3000
+grafana__port_secure: 3001
 grafana__domain: [ '{{ ansible_fqdn }}' ]
 
 # Possible values:
@@ -86,12 +98,45 @@ grafana__deploy_state: "present"
                                                                    # ]]]
 # Ngninx Proxy Configuration [[[
 # --------------------------
-grafana__public: True
-grafana__domain: 'monitor.{{ ansible_domain }}'
+grafana__nginx: True
+grafana__domain: '{{ ansible_fqdn }}'
 grafana__nginx__dependent_servers:
-  - enabled: '{{ grafana__public }}'
+  - enabled: '{{ grafana__nginx }}'
     name: [ '{{ grafana__domain }}' ]
+    filename: 'grafana'
+    listen: False
+    listen_ssl: [ '[::]:{{ grafana__port_secure }}' ]
     type: 'proxy'
     proxy_pass: 'http://localhost:3000/'
+                                                                   # ]]]
+# Depeent Services [[[
+# ----------------
+
+# .. envvar:: grafana__accept_any [[[
+#
+# Make the prometheus alertmanager aviable under the port 9093
+grafana__accept_any: True
+                                                                   # ]]]
+# .. envvar:: grafana__etc_services_dependent_list: [[[
+#
+# 
+grafana__etc_services_dependent_list:
+        - name: 'grafana'
+          port: '{{ grafana__port }}'
+          comment: 'Grafana'
+        - name: 'grafana'
+          port: '{{ grafana__port_secure }}'
+          comment: 'Grafana'
+                                                                   # ]]]
+# .. envvar:: grafana__ferm__dependet_rules: [[[
+#
+# 
+grafana__ferm__dependent_rules:
+  - name: 'grafana'
+    type: 'accept'
+    dport: '{{ grafana__port_secure if grafana__nginx else grafana_port }}'
+    accept_any: '{{ grafana__accept_any }}'
+    by_role: 'debops.grafana'
+    rule_state: '{{ grafana__deploy_state }}'
                                                                    # ]]]
                                                                    # ]]]
