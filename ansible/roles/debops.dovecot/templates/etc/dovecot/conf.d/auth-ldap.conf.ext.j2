@@ -27,7 +27,7 @@ userdb {
     driver  = ldap
     args    = /etc/dovecot/dovecot-ldap.conf.ext
     # Default fields can be used to specify defaults that LDAP may override
-    default_fields = home=/var/vmail/%Ln uid=vmail gid=mail
+    default_fields = home=/var/vmail/%Ln mail=maildir:/var/vmail/%Ln uid=vmail gid=mail
 }
 {%   else %}
 # DebOps variable dovecot_user_accounts={{ dovecot_user_accounts }}
