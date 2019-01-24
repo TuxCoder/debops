@@ -1356,7 +1356,7 @@ class Connection(ConnectionBase):
                         ("file or module does not "
                          "exist: {0}").format(to_native(in_path)))
 
-        with open(in_path, 'r') as in_f:
+        with open(in_path, 'rb') as in_f:
             in_data = in_f.read()
             cmd = ('cat > %s; echo -n done' % pipes.quote(out_path))
             h = self.container_name
