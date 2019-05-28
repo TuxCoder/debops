@@ -35,11 +35,12 @@ prometheus_exporters__deploy_state: "present"
 # .. envvar:: prometheus_exporters__exporters [[[
 #
 # list of enabled exporters
-# currently available are `node`, `mysqld`, `postfix`
+# currently available are `node`, `mysqld`, `postfix`, `nginx`
 prometheus_exporters__exporters:
   - 'node'
 #  - 'mysqld'
 #  - 'postfix'
+#  - 'nginx'
                                                                    # ]]]
 # .. envvar:: prometheus_exporter__mysql__dependencies [[[
 #
@@ -55,7 +56,7 @@ prometheus_exporter__mysql__dependencies:
     priv: '*.*:PROCESS,REPLICATION CLIENT,SELECT'
                                                                    # ]]]
                                                                    # ]]]
-# Ngninx Proxy [[[
+# Nginx Proxy [[[
 # ------------
 #
 # This is soposed to secure the access to the prometheus exporter
@@ -111,6 +112,25 @@ prometheus_exporters__nginx__dependent_htpasswd:
     users:
       - 'monitor'
                                                                    # ]]]
+                                                                   # ]]]
+# Nginx exporter [[[
+# --------------
+prometheus_exporeter__nginx_config:
+  - name: 'prometheus_nginx_exporter'
+    custom: |
+      lua_shared_dict prometheus_metrics 10M;
+      lua_package_path "/src/prometheus/nginx/prometheus.lua";
+      init_by_lua '
+        prometheus = require("prometheus").init("prometheus_metrics")
+        metric_requests = prometheus:counter("nginx_http_requests_total", "Number of HTTP requests", {"host", "status"})
+        metric_latency = prometheus:histogram("nginx_http_request_duration_seconds", "HTTP request latency", {"host"})
+        metric_connections = prometheus:gauge("nginx_http_connections", "Number of HTTP connections", {"state"})
+      ';
+      log_by_lua '
+        local host = ngx.var.host:gsub("^www.", "")
+        metric_requests:inc(1, {host, ngx.var.status})
+        metric_latency:observe(ngx.now() - ngx.req.start_time(), {host})
+      ';
                                                                    # ]]]
 # Role-dependent configuration [[[
 # ----------------------------

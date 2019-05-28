@@ -15,6 +15,7 @@
     - role: debops.apt_preferences
       tags: [ 'role::apt_preferences' ]
       apt_preferences__dependent_list:
+        - '{{ prometheus_alertmanager__apt_preferences__dependent_list }}'
         - '{{ nginx__apt_preferences__dependent_list }}'
       when: prometheus_alertmanager__nginx
 

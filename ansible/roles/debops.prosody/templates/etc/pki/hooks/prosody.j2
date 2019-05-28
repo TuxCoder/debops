@@ -6,7 +6,7 @@
 
 set -o nounset -o pipefail -o errexit
 
-prosody_config="/etc/prosody/prosody.conf.lua"
+prosody_config="/etc/prosody/prosody.cfg.lua"
 prosody_action="{{ prosody__pki_hook_action }}"
 
 # Check if current PKI realm is used by the 'prosody' webserver

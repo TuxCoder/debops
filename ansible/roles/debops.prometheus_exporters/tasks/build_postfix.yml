@@ -1,0 +1,40 @@
+---
+
+
+## postfix specific part
+- name: 'checkout postfix-exporter'
+  local_action:
+    module: 'git'
+    repo: 'https://github.com/kumina/postfix_exporter.git'
+    dest: '/tmp/postfix-exporter'
+# delegate_to: 'localhost'
+  become: 'no'
+  register: prometheus_exporters__git_postfix_exporter
+
+- name: 'build postfix-exporter'
+  environment:
+    GOPATH: '/tmp/postfix-exporter/go'
+  local_action:
+    module: 'command'
+    cmd: '{{ item }}'
+    args:
+      chdir: '/tmp/postfix-exporter'
+  with_items:
+    - 'go get -d .'
+    - 'go build'
+  become: 'no'
+  when: prometheus_exporters__git_postfix_exporter.changed
+
+- name: 'copy postfix-exporter'
+  copy:
+    mode: 0755
+    src: '/tmp/postfix-exporter/postfix-exporter'
+    dest: '/opt/postfix-exporter'
+
+- name: 'copy service file for postfix-exporter'
+  template:
+    src: 'etc/systemd/system/prometheus-postfix-exporter.service.j2'
+    dest: '/etc/systemd/system/prometheus-postfix-exporter.service'
+## end postfix
+
+
